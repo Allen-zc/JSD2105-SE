@@ -33,6 +33,8 @@ public class Test01 {
 	 * 
 	 */
 	public static String getExtByName(String name) {
-		return "";
+		int last = name.lastIndexOf(".");
+		String newname = name.substring(last + 1);
+		return newname;
 	}
 }
