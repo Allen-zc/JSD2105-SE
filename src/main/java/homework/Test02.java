@@ -14,7 +14,7 @@ public class Test02 {
     public static void main(String[] args) {
         System.out.print("请输入您的用户名：");
         Scanner scanner = new Scanner(System.in);
-        String s = scanner.nextLine();
+        String s = scanner.nextLine().trim();
         checkUserName(s);
     }
     public static void checkUserName(String name){

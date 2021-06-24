@@ -39,9 +39,9 @@ public class Test06 {
 		String shurudaxie = shuru.toUpperCase();
 		boolean panduan = shurudaxie.equals(yanzhengmadaxie);
 		if (panduan){
-			System.out.println("验证码正确");
+			System.out.println("验证码正确!");
 		}else {
-			System.out.println("验证码错误");
+			System.out.println("验证码错误!");
 		}
 	}
 
