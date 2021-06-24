@@ -50,14 +50,9 @@ public class Test06 {
 		char[] chars = new char[4];
 		while (len<4){
 			int randomnub = (int)(Math.random()*100+23);
-			if (randomnub>=48&&randomnub<=57){
+			if (randomnub>=48&&randomnub<=57||randomnub>=65&&randomnub<=90||randomnub>=97&&randomnub<=122){
 				 chars[len++]= (char)randomnub;
-			}else if (randomnub>=65&&randomnub<=90){
-				chars[len++]= (char)randomnub;
-			}else if (randomnub>=97&&randomnub<=122){
-				chars[len++]= (char)randomnub;
 			}else {
-
 			}
 		}
 
