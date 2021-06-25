@@ -1,4 +1,4 @@
-package day01;
+package homework.day01;
 /**
  * 改正下面代码的逻辑错误
  * 
