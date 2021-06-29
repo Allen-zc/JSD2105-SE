@@ -19,7 +19,13 @@ import java.io.IOException;
  * java.io.InputStream是输入流的超类，所有字节输入流都继承自它。
  * java.io.OutputStream是输出流的超类，所有字节输出流都继承自它。
  *
- * 文件流
+ * JAVA将流分为两类：节点流和处理流
+ * 节点流：也称为低级流，是真实连接程序与另一端的”管道“，负责实际读写数据的流，IO操作一定是基于某个节点流基础上进行的。
+ * 处理流：也称为高级流，它不能独立存在，必须连接在其他流上，目的是当数据流经过当前流时对其惊醒某些加工操作，使得我们读写数据得以简化。
+ * 实际开发中我们经常会串联一组高级流到某个低级流上，读写数据以流水线式的加工处理，这也称为”流的连接“。
+ *
+ *
+ * 文件流（是一对低级流）
  * java.io.FileInputStream和FileOutputStream
  * 它们是用来读写文件数据的流，是连接程序与文件之间的“管道”。
  */
@@ -32,7 +38,7 @@ public class FOSDemo {
          * FileOutputStream(String path)
          * FileOutputStream(File file)
          */
-        FileOutputStream fos = new FileOutputStream("./fos.txt");
+        FileOutputStream fos = new FileOutputStream("./fos.dat");
 
         /**
          * void write(int d)
