@@ -11,7 +11,14 @@ public class Person implements Serializable {
     private String name;    //名字
     private int age;    //年龄
     private String gender;  //性别
-    private String[] otherInfo; //其他信息
+
+    /**
+     * transient关键字
+     * 当一个对象在序列化时，会忽略所有被transient修饰的属性。
+     * 忽略不必要的属性可以达到对象序列化的“瘦身”工作，减小开销。
+     */
+
+    private transient String[] otherInfo; //其他信息
 
     public Person(String name, int age, String gender, String[] otherInfo) {
         this.name = name;
