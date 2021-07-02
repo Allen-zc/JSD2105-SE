@@ -24,8 +24,8 @@ public class OOSDemo {
         Person p = new Person(name, age, gender, otherInfo);
         System.out.println(p);
 
-        FileOutputStream fos = new FileOutputStream("person.obj");
-        ObjectOutputStream oos = new ObjectOutputStream(fos);
+//        FileOutputStream fos = new FileOutputStream("person.obj");
+//        ObjectOutputStream oos = new ObjectOutputStream(fos);
 
         /**
          * 对象输出流提供的方法：
@@ -33,8 +33,8 @@ public class OOSDemo {
          * 该方法会将给定的对象按照其结构转换为一组字节，但是要求该对象所属的类必须实现可序列化接口，否则会抛出异常：
          * java.io.NotSerializableException     不可序列化异常
          */
-        oos.writeObject(p);
+//        oos.writeObject(p);
         System.out.println("写出完毕！");
-        oos.close();
+//        oos.close();
     }
 }

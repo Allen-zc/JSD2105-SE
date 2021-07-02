@@ -1,6 +1,7 @@
 package homework.day05;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.Scanner;
 
 /**
@@ -29,82 +30,38 @@ import java.util.Scanner;
  *
  */
 public class Test03 {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         System.out.println("请依次输入四个信息，分别为姓名，密码，昵称，年龄。用回车换行隔开");
         Scanner input = new Scanner(System.in);
-        String inputname = input.nextLine();
-        String inputpwd = input.nextLine();
-        String inputnick = input.nextLine();
-        int inputage = input.nextInt();
-
-        String reges = "[0-9a-zA-Z_]{1,32}";
-
-        if (inputname!=""&&inputpwd!=""&&inputnick!=""&&inputage!=0){
-            if (inputname.matches(reges)){
-                User user = new User(inputname,inputpwd,inputnick,inputage);
-                String filename = new String(inputname + ".obj");
-                FileOutputStream fos = new FileOutputStream(filename);
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-
-                oos.writeObject(user);
-                System.out.println("对象创建成功！");
+        String inputname;
+        while (true){
+            System.out.print("请输入姓名：");
+            inputname = input.nextLine();
+            if (inputname.matches("[0-9a-zA-Z_]{1,32}")){
+                break;
             }
+            System.out.println("输入的姓名有误！请重新输入：");
         }
 
-    }
-}
-class User implements Serializable{
-    String name;
-    String pwd;
-    String nick;
-    int age;
+        System.out.print("请输入密码：");
+        String inputpwd = input.nextLine();
+        System.out.print("请输入昵称：");
+        String inputnick = input.nextLine();
+        System.out.print("请输入年龄：");
+        int inputage = input.nextInt();
 
-    public String getName() {
-        return name;
-    }
+        User user = new User(inputname,inputpwd,inputnick,inputage);
 
-    public void setName(String name) {
-        this.name = name;
-    }
+        try (
+                FileOutputStream fos = new FileOutputStream(inputname + ".obj");
 
-    public String getPwd() {
-        return pwd;
-    }
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+        ){
 
-    public void setPwd(String pwd) {
-        this.pwd = pwd;
-    }
-
-    public String getNick() {
-        return nick;
-    }
-
-    public void setNick(String nick) {
-        this.nick = nick;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public User(String name, String pwd, String nick, int age) {
-        this.name = name;
-        this.pwd = pwd;
-        this.nick = nick;
-        this.age = age;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "name='" + name + '\'' +
-                ", pwd='" + pwd + '\'' +
-                ", nick='" + nick + '\'' +
-                ", age=" + age +
-                '}';
+            oos.writeObject(user);
+            System.out.println("对象创建成功！");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
