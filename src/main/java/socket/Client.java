@@ -40,8 +40,8 @@ public class Client {
 
             System.out.println("正在连接服务端。。。");
 //            socket = new Socket("176.20.97.2",8088);
-            socket = new Socket("176.20.97.33",8088);
-//           socket = new Socket("localhost",8088);    //localhost:176.20.97.33
+//            socket = new Socket("176.20.97.33",8088);
+           socket = new Socket("localhost",8088);    //localhost:176.20.97.33
             System.out.println("与服务端建立连接！");
         } catch (IOException e) {
             e.printStackTrace();
@@ -91,9 +91,8 @@ public class Client {
 
                 pw.println(masseges);
                 System.out.println("已向服务端发送了一条消息");
+
             }
-
-
 
 
         } catch (IOException e) {
@@ -116,6 +115,28 @@ public class Client {
     public static void main(String[] args) {
         Client client = new Client();
         client.start();
+    }
+
+    /**
+     * 该线程用于循环读取服务端发送过来的消息
+     */
+    class ServerHandler implements Runnable{
+        public void run(){
+            try {
+                InputStream in = socket.getInputStream();
+                InputStreamReader isr = new InputStreamReader(in, "UTF-8");
+                BufferedReader br = new BufferedReader(isr);
+
+                String line;
+                while ((line = br.readLine())!=null){
+                    System.out.println(line);
+                }
+
+            } catch (IOException e) {
+//                e.printStackTrace();
+            }
+
+        }
     }
 
 }

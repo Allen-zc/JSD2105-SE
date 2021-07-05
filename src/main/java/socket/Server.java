@@ -1,12 +1,10 @@
 package socket;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 /**
  * 聊天室服务端
@@ -24,6 +22,8 @@ public class Server {
      */
 
     private ServerSocket serverSocket;
+
+    private PrintWriter[] allOut ={};
 
     public Server(){
         try {
@@ -57,21 +57,22 @@ public class Server {
              * 通过这个Socket就可以与该客户端交互了。
              * 相当于是“接电话”操作。
              */
-            System.out.println("等待客户端连接中。。。");
+
 
             while (true){
+                System.out.println("等待客户端连接中。。。");
 //                System.out.println("接听中...");
 
                 Socket socket = serverSocket.accept();
 
-//                System.out.println("新的客户端连接成功！");
+                System.out.println("新的客户端连接成功！");
 
                 //启动一个线程来处理该客户端交互
                 ClientHandler handler = new ClientHandler(socket);
                 System.out.println(handler.host + "进入房间!");
-                Thread t = new Thread(handler);
+                Thread thread = new Thread(handler);
 
-                t.start();
+                thread.start();
             }
 
         } catch (IOException e) {
@@ -100,10 +101,36 @@ public class Server {
 
         @Override
         public void run() {
+            PrintWriter pw = null;
             try {
                 InputStream in = socket.getInputStream();
                 InputStreamReader isr = new InputStreamReader(in,"UTF-8");
                 BufferedReader br = new BufferedReader(isr);
+
+                OutputStream out = socket.getOutputStream();
+                OutputStreamWriter osw = new OutputStreamWriter(out, "UTF-8");
+                BufferedWriter bw = new BufferedWriter(osw);
+                pw = new PrintWriter(bw,true);
+
+
+                /**
+                 * 选取锁对象的原则：多个线程看到的锁多项必须是同一个。
+                 * 通常我们可以指定临界资源作为锁对象。
+                 *
+                 * 但是这里多个线程抢的临界资源是allOut，这里不行的原因是：
+                 * 同步块中的操作包含对数组的扩容，而扩容会导致allOut指向
+                 * 别的对象，那么就等于说锁对象一直在发生改变。
+                 */
+                synchronized (ClientHandler.class){
+                   //将该输出流存入共享数组allOut中
+                   //1扩容allOut
+                   allOut = Arrays.copyOf(allOut,allOut.length+1);
+                   //2将输出流存入数组最后一个位置
+                   allOut[allOut.length-1] = pw;
+               }
+
+                sendMessage(host + "上线了，当前在线人数：" + allOut.length);
+
                 String line;
 
                 /**
@@ -124,11 +151,44 @@ public class Server {
 
 
                     System.out.println(host + "说：" + lines);
+                    //将消息恢复给所有客户端
+                    sendMessage(host + "说" + lines);
+
                 }
             }catch (IOException e){
+            }finally {
+                //处理客户端断开连接后的操作
+                //将当前客户端的输出流从数组allOut中删除
+                synchronized (ClientHandler.class){
+                    for (int i = 0; i < allOut.length; i++) {
+                        if (allOut[i] == pw){
+                            allOut[i] = allOut[allOut.length-1];
+                            allOut = Arrays.copyOf(allOut,allOut.length-1);
+                            break;
+                        }
+                    }
+                }
+
+                System.out.println(host + "下线了，当前在线人数：" + allOut.length);
+                sendMessage(host + "下线了，当前在线人数：" + allOut.length);
+                try {
+                    socket.close();
+                } catch (IOException e) {
+
+                }
             }
         }
     }
 
+    /**
+     * 将消息发送给所有客户端
+     */
+    public void sendMessage(String message){
+        synchronized (ClientHandler.class){
+            for (int i = 0; i < allOut.length; i++) {
+                allOut[i].println(message);
+            }
+        }
+    }
 
 }
