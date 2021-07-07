@@ -4,7 +4,9 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * 聊天室服务端
@@ -23,7 +25,12 @@ public class Server {
 
     private ServerSocket serverSocket;
 
-    private PrintWriter[] allOut ={};
+    /**
+     * 存放所有客户端输出流,便于广播消息使用
+     */
+//    private PrintWriter[] allOut ={};
+    private Collection<PrintWriter> allOut = new ArrayList<>();
+
 
     public Server(){
         try {
@@ -122,14 +129,16 @@ public class Server {
                  * 别的对象，那么就等于说锁对象一直在发生改变。
                  */
                 synchronized (ClientHandler.class){
-                   //将该输出流存入共享数组allOut中
-                   //1扩容allOut
-                   allOut = Arrays.copyOf(allOut,allOut.length+1);
-                   //2将输出流存入数组最后一个位置
-                   allOut[allOut.length-1] = pw;
+//                   //将该输出流存入共享数组allOut中
+//                   //1扩容allOut
+//                   allOut = Arrays.copyOf(allOut,allOut.length+1);
+//                   //2将输出流存入数组最后一个位置
+//                   allOut[allOut.length-1] = pw;
+                    allOut.add(pw);
                }
 
-                sendMessage(host + "上线了，当前在线人数：" + allOut.length);
+//                sendMessage(host + "上线了，当前在线人数：" + allOut.length);
+                sendMessage(host + "上线了,当前在线人数:" + allOut.size());
 
                 String line;
 
@@ -160,17 +169,26 @@ public class Server {
                 //处理客户端断开连接后的操作
                 //将当前客户端的输出流从数组allOut中删除
                 synchronized (ClientHandler.class){
-                    for (int i = 0; i < allOut.length; i++) {
-                        if (allOut[i] == pw){
-                            allOut[i] = allOut[allOut.length-1];
-                            allOut = Arrays.copyOf(allOut,allOut.length-1);
+//                    for (int i = 0; i < allOut.length; i++) {
+//                        if (allOut[i] == pw){
+//                            allOut[i] = allOut[allOut.length-1];
+//                            allOut = Arrays.copyOf(allOut,allOut.length-1);
+//                            break;
+//                        }
+//                    }
+                    for (Object newallOut : allOut) {
+                        if (newallOut == pw){
+                            allOut.remove(pw);
                             break;
                         }
                     }
                 }
 
-                System.out.println(host + "下线了，当前在线人数：" + allOut.length);
-                sendMessage(host + "下线了，当前在线人数：" + allOut.length);
+//                System.out.println(host + "下线了，当前在线人数：" + allOut.length);
+//                sendMessage(host + "下线了，当前在线人数：" + allOut.length);
+                System.out.println(host + "下线了,当前在线人数:" + allOut.size());
+                sendMessage(host + "下线了,当前在线人数:" + allOut.size());
+
                 try {
                     socket.close();
                 } catch (IOException e) {
@@ -185,8 +203,12 @@ public class Server {
      */
     public void sendMessage(String message){
         synchronized (ClientHandler.class){
-            for (int i = 0; i < allOut.length; i++) {
-                allOut[i].println(message);
+//            for (int i = 0; i < allOut.length; i++) {
+//                allOut[i].println(message);
+//            }
+            for (PrintWriter newallOut :
+                    allOut) {
+                newallOut.println(message);
             }
         }
     }
