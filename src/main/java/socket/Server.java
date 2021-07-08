@@ -4,9 +4,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 
 /**
  * 聊天室服务端
@@ -29,7 +27,11 @@ public class Server {
      * 存放所有客户端输出流,便于广播消息使用
      */
 //    private PrintWriter[] allOut ={};
-    private Collection<PrintWriter> allOut = new ArrayList<>();
+//    private Collection<PrintWriter> allOut = new ArrayList<>();
+
+    //并发安全的集合
+    private List<PrintWriter> allOut = Collections.synchronizedList(new ArrayList<>());
+
 
 
     public Server(){
@@ -128,14 +130,21 @@ public class Server {
                  * 同步块中的操作包含对数组的扩容，而扩容会导致allOut指向
                  * 别的对象，那么就等于说锁对象一直在发生改变。
                  */
+
+               /*
                 synchronized (ClientHandler.class){
 //                   //将该输出流存入共享数组allOut中
 //                   //1扩容allOut
 //                   allOut = Arrays.copyOf(allOut,allOut.length+1);
 //                   //2将输出流存入数组最后一个位置
 //                   allOut[allOut.length-1] = pw;
+
                     allOut.add(pw);
                }
+               */
+
+                //并发安全的集合多线程add时会同步操作
+                allOut.add(pw);
 
 //                sendMessage(host + "上线了，当前在线人数：" + allOut.length);
                 sendMessage(host + "上线了,当前在线人数:" + allOut.size());
@@ -168,6 +177,7 @@ public class Server {
             }finally {
                 //处理客户端断开连接后的操作
                 //将当前客户端的输出流从数组allOut中删除
+                /*
                 synchronized (ClientHandler.class){
 //                    for (int i = 0; i < allOut.length; i++) {
 //                        if (allOut[i] == pw){
@@ -183,6 +193,9 @@ public class Server {
                         }
                     }
                 }
+                */
+
+                allOut.remove(pw);
 
 //                System.out.println(host + "下线了，当前在线人数：" + allOut.length);
 //                sendMessage(host + "下线了，当前在线人数：" + allOut.length);
@@ -202,15 +215,19 @@ public class Server {
      * 将消息发送给所有客户端
      */
     public void sendMessage(String message){
+
+        /*
         synchronized (ClientHandler.class){
 //            for (int i = 0; i < allOut.length; i++) {
 //                allOut[i].println(message);
 //            }
-            for (PrintWriter newallOut :
-                    allOut) {
+            for (PrintWriter newallOut : allOut) {
                 newallOut.println(message);
             }
         }
+         */
+
+        allOut.forEach(pw-> pw.println(message));
     }
 
 }
