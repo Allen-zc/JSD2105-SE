@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class FISDemo {
     public static void main(String[] args) throws IOException {
-        FileInputStream fis = new FileInputStream("./fos.dat");
+        FileInputStream fis = new FileInputStream("./fos.txt");
 
         int d = fis.read();
         System.out.println(d);
